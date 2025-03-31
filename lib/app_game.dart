@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'dart:math';
 
+import 'package:cosmic_chaos/components/asteroid.dart';
 import 'package:cosmic_chaos/components/player.dart';
 import 'package:flame/components.dart';
 import 'package:flame/flame.dart';
@@ -10,6 +12,8 @@ class AppGame extends FlameGame {
 
   late Player player;
   late JoystickComponent joystick;
+  late SpawnComponent _asteroidSpawner;
+  final Random _random = Random();
 
   @override
   FutureOr<void> onLoad() async {
@@ -22,6 +26,7 @@ class AppGame extends FlameGame {
   Future<void> startGame() async {
     await _createJoystick();
     _createPlayer();
+    _createAsteroidSpawner();
   }
 
   void _createPlayer() {
@@ -46,6 +51,23 @@ class AppGame extends FlameGame {
       priority: 10,
     );
     add(joystick);
+  }
+
+  void _createAsteroidSpawner() {
+    _asteroidSpawner = SpawnComponent.periodRange(
+      factory: (index) => Asteroid(position: _generateSpawnPosition()),
+      minPeriod: 0.7,
+      maxPeriod: 2,
+      selfPositioning: true,
+    );
+    add(_asteroidSpawner);
+  }
+
+  Vector2 _generateSpawnPosition() {
+    return Vector2(
+      10 + _random.nextDouble() * (size.x - 10 * 2),
+      100,
+    );
   }
 
   @override
