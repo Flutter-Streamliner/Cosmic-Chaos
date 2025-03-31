@@ -43,6 +43,7 @@ class AppGame extends FlameGame {
       ),
       anchor: Anchor.bottomLeft,
       position: Vector2(20, size.y - 20),
+      priority: 10,
     );
     add(joystick);
   }
