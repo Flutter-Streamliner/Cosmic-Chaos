@@ -10,12 +10,14 @@ class Asteroid extends SpriteComponent with HasGameReference<AppGame> {
   Asteroid({required super.position, double size = _maxSize})
     : super(size: Vector2.all(size), anchor: Anchor.center, priority: -1) {
     _velocity = _generateVelocity();
+    _spinSpeed = _random.nextDouble() * 1.5 - 0.75;
   }
 
   static const double _maxSize = 120;
 
   final Random _random = Random();
   late Vector2 _velocity;
+  late double _spinSpeed;
 
   @override
   FutureOr<void> onLoad() async {
@@ -27,7 +29,7 @@ class Asteroid extends SpriteComponent with HasGameReference<AppGame> {
   @override
   void update(double dt) {
     position += _velocity * dt;
-
+    angle += _spinSpeed * dt;
     _handleScreenBounds();
     super.update(dt);
   }
