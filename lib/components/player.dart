@@ -8,6 +8,8 @@ import 'package:flame/components.dart';
 class Player extends SpriteComponent with HasGameReference<AppGame> {
 
   bool _isShooting = false;
+  final double _fireCooldown = 0.2;
+  double _elapseFireTime = 0.0;
 
   @override
   FutureOr<void> onLoad() async {
@@ -22,8 +24,10 @@ class Player extends SpriteComponent with HasGameReference<AppGame> {
     position += game.joystick.relativeDelta.normalized() * 200 * dt;
     _handleScreenBounds();
 
-    if (_isShooting) {
+    _elapseFireTime += dt;
+    if (_isShooting && _elapseFireTime >= _fireCooldown) {
       _fireLaser();
+      _elapseFireTime = 0.0;
     }
   }
 
