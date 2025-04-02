@@ -4,12 +4,14 @@ import 'dart:ui';
 import 'package:cosmic_chaos/app_game.dart';
 import 'package:cosmic_chaos/components/laser.dart';
 import 'package:flame/components.dart';
+import 'package:flutter/services.dart';
 
-class Player extends SpriteComponent with HasGameReference<AppGame> {
+class Player extends SpriteComponent with HasGameReference<AppGame>, KeyboardHandler {
 
   bool _isShooting = false;
   final double _fireCooldown = 0.2;
   double _elapseFireTime = 0.0;
+  final Vector2 _keyboardMovement = Vector2.zero();
 
   @override
   FutureOr<void> onLoad() async {
@@ -21,7 +23,8 @@ class Player extends SpriteComponent with HasGameReference<AppGame> {
   @override
   void update(double dt){
     super.update(dt);
-    position += game.joystick.relativeDelta.normalized() * 200 * dt;
+    final Vector2 movement = game.joystick.relativeDelta + _keyboardMovement;
+    position += movement.normalized() * 200 * dt;
     _handleScreenBounds();
 
     _elapseFireTime += dt;
@@ -60,5 +63,17 @@ class Player extends SpriteComponent with HasGameReference<AppGame> {
 
   void _fireLaser() {
     game.add(Laser(position: position.clone() + Vector2(0, -size.y - 2)));
+  }
+
+  @override
+  bool onKeyEvent(KeyEvent event, Set<LogicalKeyboardKey> keysPressed) {
+    _keyboardMovement.x = 0;
+    _keyboardMovement.x += keysPressed.contains(LogicalKeyboardKey.keyA) ? -1 : 0;
+    _keyboardMovement.x += keysPressed.contains(LogicalKeyboardKey.keyD) ? 1 : 0;
+
+    _keyboardMovement.y = 0;
+    _keyboardMovement.y += keysPressed.contains(LogicalKeyboardKey.keyW) ? -1 : 0;
+    _keyboardMovement.y += keysPressed.contains(LogicalKeyboardKey.keyS) ? 1 : 0;
+    return true;
   }
 }

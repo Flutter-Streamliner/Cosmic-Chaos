@@ -5,11 +5,12 @@ import 'package:cosmic_chaos/components/asteroid.dart';
 import 'package:cosmic_chaos/components/player.dart';
 import 'package:cosmic_chaos/components/shoot_button.dart';
 import 'package:flame/components.dart';
+import 'package:flame/events.dart';
 import 'package:flame/flame.dart';
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 
-class AppGame extends FlameGame {
+class AppGame extends FlameGame with HasKeyboardHandlerComponents {
 
   final Random _random = Random();
 
