@@ -3,6 +3,7 @@ import 'dart:math';
 import 'dart:ui';
 
 import 'package:cosmic_chaos/app_game.dart';
+import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 
 class Asteroid extends SpriteComponent with HasGameReference<AppGame> {
@@ -11,6 +12,8 @@ class Asteroid extends SpriteComponent with HasGameReference<AppGame> {
     : super(size: Vector2.all(size), anchor: Anchor.center, priority: -1) {
     _velocity = _generateVelocity();
     _spinSpeed = _random.nextDouble() * 1.5 - 0.75;
+    
+    add(CircleHitbox());
   }
 
   static const double _maxSize = 120;

@@ -10,7 +10,7 @@ import 'package:flame/flame.dart';
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 
-class AppGame extends FlameGame with HasKeyboardHandlerComponents {
+class AppGame extends FlameGame with HasKeyboardHandlerComponents, HasCollisionDetection {
 
   final Random _random = Random();
 
