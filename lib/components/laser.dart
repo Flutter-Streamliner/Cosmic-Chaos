@@ -35,7 +35,7 @@ class Laser extends SpriteComponent with HasGameReference<AppGame>, CollisionCal
     super.onCollision(intersectionPoints, other);
     if (other is Asteroid) {
       removeFromParent();
-      other.removeFromParent();
+      other.takeDamage();
     }
   }
 }
