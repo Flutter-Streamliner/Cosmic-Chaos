@@ -1,10 +1,11 @@
 import 'dart:async';
 import 'dart:math';
-import 'dart:ui';
 
 import 'package:cosmic_chaos/app_game.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
+import 'package:flame/effects.dart';
+import 'package:flutter/widgets.dart';
 
 class Asteroid extends SpriteComponent with HasGameReference<AppGame> {
 
@@ -66,6 +67,20 @@ class Asteroid extends SpriteComponent with HasGameReference<AppGame> {
     _health--;
     if (_health <= 0) {
       removeFromParent();
+    } else {
+      _flashWhite();
     }
+  }
+
+  void _flashWhite() {
+    final ColorEffect flashEffect = ColorEffect(
+      const Color.fromRGBO(255, 255, 255, 1.0),
+      EffectController(
+        duration: 0.1,
+        alternate: true,
+        curve: Curves.easeInOut,
+      ),
+    );
+    add(flashEffect);
   }
 }
