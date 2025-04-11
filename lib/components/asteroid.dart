@@ -12,6 +12,7 @@ class Asteroid extends SpriteComponent with HasGameReference<AppGame> {
   Asteroid({required super.position, double size = _maxSize})
     : super(size: Vector2.all(size), anchor: Anchor.center, priority: -1) {
     _velocity = _generateVelocity();
+    _originalVelocity.setFrom(_velocity);
     _spinSpeed = _random.nextDouble() * 1.5 - 0.75;
     _health = size / _maxSize * _maxHealth;
     
@@ -20,11 +21,14 @@ class Asteroid extends SpriteComponent with HasGameReference<AppGame> {
 
   static const double _maxSize = 120;
 
-  final Random _random = Random();
   late Vector2 _velocity;
   late double _spinSpeed;
   final double _maxHealth = 3;
   late double _health;
+
+  final Vector2 _originalVelocity = Vector2.zero();
+  final Random _random = Random();
+  bool _isKnockBack = false;
 
   @override
   FutureOr<void> onLoad() async {
@@ -69,6 +73,7 @@ class Asteroid extends SpriteComponent with HasGameReference<AppGame> {
       removeFromParent();
     } else {
       _flashWhite();
+      _applyKnockBack();
     }
   }
 
@@ -82,5 +87,24 @@ class Asteroid extends SpriteComponent with HasGameReference<AppGame> {
       ),
     );
     add(flashEffect);
+  }
+
+  void _applyKnockBack() {
+    if (_isKnockBack) return;
+    _isKnockBack = true;
+    _velocity.setZero();
+    final MoveByEffect knockBackEffect = MoveByEffect(
+      Vector2(0, -20),
+      EffectController(
+        duration: 0.1,
+      ),
+      onComplete: _restoreVelocity,
+    );
+    add(knockBackEffect);
+  }
+
+  void _restoreVelocity() {
+    _velocity.setFrom(_originalVelocity);
+    _isKnockBack = false;
   }
 }
