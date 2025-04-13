@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:cosmic_chaos/app_game.dart';
+import 'package:cosmic_chaos/components/explosion.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flame/effects.dart';
@@ -71,6 +72,7 @@ class Asteroid extends SpriteComponent with HasGameReference<AppGame> {
     _health--;
     if (_health <= 0) {
       removeFromParent();
+      _createExplosion();
     } else {
       _flashWhite();
       _applyKnockBack();
@@ -106,5 +108,14 @@ class Asteroid extends SpriteComponent with HasGameReference<AppGame> {
   void _restoreVelocity() {
     _velocity.setFrom(_originalVelocity);
     _isKnockBack = false;
+  }
+
+  void _createExplosion() {
+    final Explosion explosion = Explosion(
+      position: position.clone(),
+      area: size.x,
+      type: ExplosionType.dust,
+    );
+    game.add(explosion);
   }
 }
