@@ -73,6 +73,7 @@ class Asteroid extends SpriteComponent with HasGameReference<AppGame> {
     if (_health <= 0) {
       removeFromParent();
       _createExplosion();
+      _splitAsteroid();
     } else {
       _flashWhite();
       _applyKnockBack();
@@ -117,5 +118,17 @@ class Asteroid extends SpriteComponent with HasGameReference<AppGame> {
       type: ExplosionType.dust,
     );
     game.add(explosion);
+  }
+
+  void _splitAsteroid() {
+    if (size.x <= _maxSize / 3) return;
+
+    for (int i = 0; i < 3; i ++) {
+      final Asteroid fragment = Asteroid(
+        position: position.clone(),
+        size: size.x - _maxSize / 3,
+      );
+      game.add(fragment);
+    }
   }
 }
