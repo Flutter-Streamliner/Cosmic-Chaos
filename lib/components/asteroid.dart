@@ -71,10 +71,12 @@ class Asteroid extends SpriteComponent with HasGameReference<AppGame> {
   void takeDamage() {
     _health--;
     if (_health <= 0) {
+      game.incrementScore(2);
       removeFromParent();
       _createExplosion();
       _splitAsteroid();
     } else {
+      game.incrementScore(1);
       _flashWhite();
       _applyKnockBack();
     }

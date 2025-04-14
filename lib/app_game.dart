@@ -5,6 +5,7 @@ import 'package:cosmic_chaos/components/asteroid.dart';
 import 'package:cosmic_chaos/components/player.dart';
 import 'package:cosmic_chaos/components/shoot_button.dart';
 import 'package:flame/components.dart';
+import 'package:flame/effects.dart';
 import 'package:flame/events.dart';
 import 'package:flame/flame.dart';
 import 'package:flame/game.dart';
@@ -18,6 +19,8 @@ class AppGame extends FlameGame with HasKeyboardHandlerComponents, HasCollisionD
   late JoystickComponent joystick;
   late SpawnComponent _asteroidSpawner;
   late ShootButton _shootButton;
+  late TextComponent _scoreDisplay;
+  int _score = 0;
 
   @override
   FutureOr<void> onLoad() async {
@@ -32,6 +35,7 @@ class AppGame extends FlameGame with HasKeyboardHandlerComponents, HasCollisionD
     await _createPlayer();
     _createShootButton();
     _createAsteroidSpawner();
+    _createScoreDisplay();
   }
 
   Future<void> _createPlayer() async {
@@ -76,11 +80,50 @@ class AppGame extends FlameGame with HasKeyboardHandlerComponents, HasCollisionD
     add(_asteroidSpawner);
   }
 
+  void _createScoreDisplay() {
+    _score = 0;
+
+    _scoreDisplay = TextComponent(
+      text: '0',
+      anchor: Anchor.topCenter,
+      position: Vector2(size.x / 2, 20),
+      priority: 10, // make sure text on top of the player
+      textRenderer: TextPaint(
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 48,
+          fontWeight: FontWeight.bold,
+          shadows: [
+            Shadow(color: Colors.black, offset: Offset(2, 2), blurRadius: 2),
+          ],
+        )
+      )
+    );
+    
+    add(_scoreDisplay);
+  }
+
   Vector2 _generateSpawnPosition() {
     return Vector2(
       10 + _random.nextDouble() * (size.x - 10 * 2),
       100,
     );
+  }
+
+  void incrementScore(int amount) {
+    _score += amount;
+    _scoreDisplay.text = _score.toString();
+
+    final ScaleEffect popEffect = ScaleEffect.to(
+      Vector2.all(1.2),
+      EffectController(
+        duration: 0.05,
+        alternate: true,
+        curve: Curves.easeInOut,
+      )
+    );
+    
+    _scoreDisplay.add(popEffect);
   }
 
   @override
