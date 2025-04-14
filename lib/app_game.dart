@@ -86,7 +86,7 @@ class AppGame extends FlameGame with HasKeyboardHandlerComponents, HasCollisionD
     _scoreDisplay = TextComponent(
       text: '0',
       anchor: Anchor.topCenter,
-      position: Vector2(size.x / 2, 20),
+      position: Vector2(size.x / 2, 40),
       priority: 10, // make sure text on top of the player
       textRenderer: TextPaint(
         style: const TextStyle(
