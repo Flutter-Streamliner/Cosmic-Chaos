@@ -5,6 +5,7 @@ import 'dart:ui';
 import 'package:cosmic_chaos/app_game.dart';
 import 'package:flame/components.dart';
 import 'package:flame/effects.dart';
+import 'package:flame/particles.dart';
 
 enum ExplosionType {
   dust, smoke, fire,
@@ -34,7 +35,53 @@ class Explosion extends PositionComponent with HasGameReference<AppGame> {
   @override
   FutureOr<void> onLoad() {
     _createFlash();
+    _createParticles();
     add(RemoveEffect(delay: 1.0));
     return super.onLoad();
+  }
+
+  List<Color> _generateColors() {
+    switch (type) {
+      case ExplosionType.dust:
+        return [
+          const Color(0xFF5A4632),
+          const Color(0xFF6B543D),
+          const Color(0xFF8A6E50),
+        ];
+      case ExplosionType.smoke:
+        return [
+          const Color(0xFF404040),
+          const Color(0xFF606060),
+          const Color(0xFF808080),
+        ];
+      case ExplosionType.fire:
+        return [
+          const Color(0xFFFFD700),
+          const Color(0xFFFFA500),
+          const Color(0xFFFFC107),
+        ];
+    }
+  }
+
+  void _createParticles() {
+    final List<Color> colors = _generateColors();
+
+    final ParticleSystemComponent particles = ParticleSystemComponent(
+      particle: Particle.generate(
+        count: 8 + _random.nextInt(5),
+        generator: (index) => MovingParticle(
+          child: CircleParticle(
+            paint: Paint()..color = colors[_random.nextInt(colors.length)].withValues(alpha: 0.4 + _random.nextDouble() * 0.4),
+            radius: area * (0.1 + _random.nextDouble() * 0.05),
+          ),
+            to: Vector2(
+              (_random.nextDouble() - 0.5) * area * 2,
+              (_random.nextDouble() - 0.5) * area * 2,
+            ),
+          lifespan: 0.5 + _random.nextDouble() * 0.5,
+        ),
+      )
+    );
+    add(particles);
   }
 }
