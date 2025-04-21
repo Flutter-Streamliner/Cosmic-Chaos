@@ -6,7 +6,7 @@ import 'package:cosmic_chaos/components/laser.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/services.dart';
 
-class Player extends SpriteComponent with HasGameReference<AppGame>, KeyboardHandler {
+class Player extends SpriteAnimationComponent with HasGameReference<AppGame>, KeyboardHandler {
 
   bool _isShooting = false;
   final double _fireCooldown = 0.2;
@@ -15,7 +15,7 @@ class Player extends SpriteComponent with HasGameReference<AppGame>, KeyboardHan
 
   @override
   FutureOr<void> onLoad() async {
-    sprite = await game.loadSprite('player_blue_on0.png');
+    animation = await _loadAnimation();
     size *= 0.3;
     return super.onLoad();
   }
@@ -32,6 +32,15 @@ class Player extends SpriteComponent with HasGameReference<AppGame>, KeyboardHan
       _fireLaser();
       _elapseFireTime = 0.0;
     }
+  }
+
+  Future<SpriteAnimation> _loadAnimation() async {
+    return SpriteAnimation.spriteList([
+      await game.loadSprite('player_blue_on0.png'),
+      await game.loadSprite('player_blue_on1.png'),
+    ], stepTime: 0.1,
+      loop: true,
+    );
   }
 
   void _handleScreenBounds() {
