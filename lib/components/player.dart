@@ -2,27 +2,33 @@ import 'dart:async';
 import 'dart:ui';
 
 import 'package:cosmic_chaos/app_game.dart';
+import 'package:cosmic_chaos/components/asteroid.dart';
 import 'package:cosmic_chaos/components/laser.dart';
+import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
+import 'package:flame/effects.dart';
 import 'package:flutter/services.dart';
 
-class Player extends SpriteAnimationComponent with HasGameReference<AppGame>, KeyboardHandler {
+class Player extends SpriteAnimationComponent with HasGameReference<AppGame>, KeyboardHandler, CollisionCallbacks {
 
   bool _isShooting = false;
   final double _fireCooldown = 0.2;
   double _elapseFireTime = 0.0;
   final Vector2 _keyboardMovement = Vector2.zero();
+  bool _isDestroyed = false;
 
   @override
   FutureOr<void> onLoad() async {
     animation = await _loadAnimation();
     size *= 0.3;
+    add(RectangleHitbox());
     return super.onLoad();
   }
 
   @override
   void update(double dt){
     super.update(dt);
+    if (_isDestroyed) return;
     final Vector2 movement = game.joystick.relativeDelta + _keyboardMovement;
     position += movement.normalized() * 200 * dt;
     _handleScreenBounds();
@@ -72,6 +78,28 @@ class Player extends SpriteAnimationComponent with HasGameReference<AppGame>, Ke
 
   void _fireLaser() {
     game.add(Laser(position: position.clone() + Vector2(0, -size.y - 2)));
+  }
+
+  void _handleDestruction() async {
+    _isDestroyed = true;
+    animation = SpriteAnimation.spriteList([
+      await game.loadSprite('player_blue_off.png'),
+    ], stepTime: double.infinity,);
+    add(ColorEffect(
+      const Color.fromRGBO(255, 255, 255, 1.0),
+      EffectController(duration: 0.0),),
+    );
+    add(OpacityEffect.fadeOut(EffectController(duration: 3.0)));
+  }
+
+  @override
+  void onCollision(Set<Vector2> intersectionPoints, PositionComponent other) {
+    super.onCollision(intersectionPoints, other);
+    if (_isDestroyed) return;
+
+    if (other is Asteroid) {
+      _handleDestruction();
+    }
   }
 
   @override
