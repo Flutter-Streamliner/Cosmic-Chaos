@@ -1,8 +1,10 @@
 import 'dart:async';
+import 'dart:math';
 import 'dart:ui';
 
 import 'package:cosmic_chaos/app_game.dart';
 import 'package:cosmic_chaos/components/asteroid.dart';
+import 'package:cosmic_chaos/components/explosion.dart';
 import 'package:cosmic_chaos/components/laser.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
@@ -16,6 +18,17 @@ class Player extends SpriteAnimationComponent with HasGameReference<AppGame>, Ke
   double _elapseFireTime = 0.0;
   final Vector2 _keyboardMovement = Vector2.zero();
   bool _isDestroyed = false;
+  final Random _random = Random();
+  late Timer _explosionTimer;
+
+  Player() {
+    _explosionTimer = Timer(
+      0.1,
+      onTick: _createRandomExplosion,
+      repeat: true,
+      autoStart: false,
+    );
+  }
 
   @override
   FutureOr<void> onLoad() async {
@@ -28,7 +41,10 @@ class Player extends SpriteAnimationComponent with HasGameReference<AppGame>, Ke
   @override
   void update(double dt){
     super.update(dt);
-    if (_isDestroyed) return;
+    if (_isDestroyed) {
+      _explosionTimer.update(dt);
+      return;
+    }
     final Vector2 movement = game.joystick.relativeDelta + _keyboardMovement;
     position += movement.normalized() * 200 * dt;
     _handleScreenBounds();
@@ -89,7 +105,12 @@ class Player extends SpriteAnimationComponent with HasGameReference<AppGame>, Ke
       const Color.fromRGBO(255, 255, 255, 1.0),
       EffectController(duration: 0.0),),
     );
-    add(OpacityEffect.fadeOut(EffectController(duration: 3.0)));
+    add(OpacityEffect.fadeOut(
+      EffectController(duration: 3.0),
+      onComplete: () => _explosionTimer.stop(),
+    ));
+    add(RemoveEffect(delay: 4));
+    _explosionTimer.start();
   }
 
   @override
@@ -100,6 +121,17 @@ class Player extends SpriteAnimationComponent with HasGameReference<AppGame>, Ke
     if (other is Asteroid) {
       _handleDestruction();
     }
+  }
+
+  void _createRandomExplosion() {
+    final Vector2 explosionPosition = Vector2(
+      position.x - size.x / 2 + _random.nextDouble() * size.x,
+      position.y - size.y / 2 + _random.nextDouble() * size.y,
+    );
+
+    final ExplosionType explosionType = _random.nextBool() ? ExplosionType.smoke : ExplosionType.fire;
+    final Explosion explosion = Explosion(position: explosionPosition, type: explosionType, area: size.x * 0.7);
+    game.add(explosion);
   }
 
   @override
