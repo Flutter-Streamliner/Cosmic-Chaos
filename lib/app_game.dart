@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:cosmic_chaos/components/asteroid.dart';
+import 'package:cosmic_chaos/components/pickup.dart';
 import 'package:cosmic_chaos/components/player.dart';
 import 'package:cosmic_chaos/components/shoot_button.dart';
 import 'package:flame/components.dart';
@@ -18,6 +19,7 @@ class AppGame extends FlameGame with HasKeyboardHandlerComponents, HasCollisionD
   late Player player;
   late JoystickComponent joystick;
   late SpawnComponent _asteroidSpawner;
+  late SpawnComponent _pickupSpawner;
   late ShootButton _shootButton;
   late TextComponent _scoreDisplay;
   int _score = 0;
@@ -35,6 +37,7 @@ class AppGame extends FlameGame with HasKeyboardHandlerComponents, HasCollisionD
     await _createPlayer();
     _createShootButton();
     _createAsteroidSpawner();
+    _createPickupSpawner();
     _createScoreDisplay();
   }
 
@@ -78,6 +81,19 @@ class AppGame extends FlameGame with HasKeyboardHandlerComponents, HasCollisionD
       selfPositioning: true,
     );
     add(_asteroidSpawner);
+  }
+  
+  void _createPickupSpawner() {
+    _pickupSpawner = SpawnComponent.periodRange(
+      factory: (index) => Pickup(
+        position: _generateSpawnPosition(),
+        type: PickupType.values[_random.nextInt(PickupType.values.length)],
+      ),
+      minPeriod: 0.7,
+      maxPeriod: 1.2,
+      selfPositioning: true,
+    );
+    add(_pickupSpawner);
   }
 
   void _createScoreDisplay() {
