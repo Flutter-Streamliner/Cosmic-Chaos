@@ -34,7 +34,11 @@ class Player extends SpriteAnimationComponent with HasGameReference<AppGame>, Ke
   FutureOr<void> onLoad() async {
     animation = await _loadAnimation();
     size *= 0.3;
-    add(RectangleHitbox());
+    add(RectangleHitbox.relative(
+      Vector2(0.6, 0.9),
+      parentSize: size,
+      anchor: Anchor.center,
+    ),);
     return super.onLoad();
   }
 
@@ -109,6 +113,9 @@ class Player extends SpriteAnimationComponent with HasGameReference<AppGame>, Ke
       EffectController(duration: 3.0),
       onComplete: () => _explosionTimer.stop(),
     ));
+
+    add(MoveEffect.by(Vector2(0, 200), EffectController(duration: 3.0)));
+
     add(RemoveEffect(delay: 4));
     _explosionTimer.start();
   }
