@@ -6,6 +6,7 @@ import 'package:cosmic_chaos/app_game.dart';
 import 'package:cosmic_chaos/components/asteroid.dart';
 import 'package:cosmic_chaos/components/explosion.dart';
 import 'package:cosmic_chaos/components/laser.dart';
+import 'package:cosmic_chaos/components/pickup.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flame/effects.dart';
@@ -20,12 +21,18 @@ class Player extends SpriteAnimationComponent with HasGameReference<AppGame>, Ke
   bool _isDestroyed = false;
   final Random _random = Random();
   late Timer _explosionTimer;
+  late Timer _laserPowerTimer;
 
   Player() {
     _explosionTimer = Timer(
       0.1,
       onTick: _createRandomExplosion,
       repeat: true,
+      autoStart: false,
+    );
+
+    _laserPowerTimer = Timer(
+      10.0,
       autoStart: false,
     );
   }
@@ -48,6 +55,9 @@ class Player extends SpriteAnimationComponent with HasGameReference<AppGame>, Ke
     if (_isDestroyed) {
       _explosionTimer.update(dt);
       return;
+    }
+    if (_laserPowerTimer.isRunning()) {
+      _laserPowerTimer.update(dt);
     }
     final Vector2 movement = game.joystick.relativeDelta + _keyboardMovement;
     position += movement.normalized() * 200 * dt;
@@ -98,6 +108,10 @@ class Player extends SpriteAnimationComponent with HasGameReference<AppGame>, Ke
 
   void _fireLaser() {
     game.add(Laser(position: position.clone() + Vector2(0, -size.y - 2)));
+    if (_laserPowerTimer.isRunning()) {
+      game.add(Laser(position: position.clone() + Vector2(0, -size.y - 2), angle: 15 * radians2Degrees));
+      game.add(Laser(position: position.clone() + Vector2(0, -size.y - 2), angle: -15 * radians2Degrees));
+    }
   }
 
   void _handleDestruction() async {
@@ -127,6 +141,20 @@ class Player extends SpriteAnimationComponent with HasGameReference<AppGame>, Ke
 
     if (other is Asteroid) {
       _handleDestruction();
+    } else if (other is Pickup) {
+      other.removeFromParent();
+      game.incrementScore(1);
+      switch (other.type) {
+        case PickupType.laser:
+          _laserPowerTimer.start();
+          break;
+        case PickupType.bomb:
+          //TODO: add damage to player
+          break;
+        case PickupType.shield:
+          //TODO: add shield to player
+          break;
+      }
     }
   }
 

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:cosmic_chaos/app_game.dart';
 import 'package:cosmic_chaos/components/asteroid.dart';
@@ -6,7 +7,7 @@ import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 
 class Laser extends SpriteComponent with HasGameReference<AppGame>, CollisionCallbacks {
-  Laser({required super.position})
+  Laser({required super.position, super.angle = 0.0})
     : super(
       anchor: Anchor.center,
       priority: -1,
@@ -22,7 +23,7 @@ class Laser extends SpriteComponent with HasGameReference<AppGame>, CollisionCal
 
   @override
   void update(double dt) {
-    position.y -= 500 * dt;
+    position += Vector2(sin(angle), -cos(angle)) * 500 * dt;
 
     // remove the laser from the game if it goes about the top
     if (position.y < - size.y / 2) {
